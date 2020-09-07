@@ -10,7 +10,7 @@ import (
 
 // InitMysql -
 func InitMysql() (writer *sql.DB, reader *sql.DB) {
-	writer, err := sql.Open("mysql", "root:123456@tcp(localhost:3307)/fileserver")
+	writer, err := sql.Open("mysql", "root:123456@tcp(192.168.2.3:13307)/fileserver")
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -20,7 +20,7 @@ func InitMysql() (writer *sql.DB, reader *sql.DB) {
 		log.Fatalln(err)
 	}
 
-	reader, err = sql.Open("mysql", "reader:123456@tcp(localhost:3308)/fileserver")
+	reader, err = sql.Open("mysql", "reader:123456@tcp(192.168.2.3:13308)/fileserver")
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -34,6 +34,21 @@ func InitMysql() (writer *sql.DB, reader *sql.DB) {
 	reader.SetMaxOpenConns(10000)
 
 	err = createFileTable(writer)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	err = createUserTable(writer)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	err = createTokenTable(writer)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	err = createUserFileTabel(writer)
 	if err != nil {
 		log.Fatalln(err)
 	}

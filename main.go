@@ -1,11 +1,9 @@
 package main
 
 import (
-	"log"
+	"fmt"
 )
 
 func main() {
-
-	log.SetFlags(log.Ldate | log.Lmicroseconds | log.Llongfile)
-
+	fmt.Println("...")
 }

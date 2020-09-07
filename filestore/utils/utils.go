@@ -4,9 +4,14 @@ import (
 	"crypto/md5"
 	"crypto/sha1"
 	"encoding/hex"
+	"fmt"
 	"io"
+	"mime/multipart"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"regexp"
+	"time"
 )
 
 // MD5Byte -
@@ -45,6 +50,15 @@ func Sha1File(file *os.File) string {
 	return hex.EncodeToString(sha1Data)
 }
 
+// Sha1MFile -
+func Sha1MFile(file multipart.File) string {
+	sha1 := sha1.New()
+	io.Copy(sha1, file)
+	sha1Data := sha1.Sum(nil)
+
+	return hex.EncodeToString(sha1Data)
+}
+
 // PathExists -
 func PathExists(path string) bool {
 	_, err := os.Stat(path)
@@ -63,6 +77,20 @@ func GetFileSize(path string) (int64, error) {
 	})
 	//	log.Println(time.Now().Sub(t))
 	return size, err
+}
+
+// ModifyFileName -
+func ModifyFileName(path string, newFileName string) (newPatn string, err error) {
+	var tmpPath string
+	err = filepath.Walk(path, func(_ string, info os.FileInfo, err error) error {
+		if !info.IsDir() {
+			tmpPath = filepath.Join(filepath.Dir(path) + "/" + newFileName)
+			os.Rename(path, tmpPath)
+		}
+		return err
+	})
+
+	return tmpPath, err
 }
 
 // getFileSize1 -
@@ -92,4 +120,45 @@ func getFileSize2(path string) int64 {
 
 	//	log.Println(time.Now().Sub(t))
 	return fileInfo.Size()
+}
+
+// CheckUsernameValidity -
+func CheckUsernameValidity(username string) (matched bool) {
+	pattern := `^[a-z0-9_-]{3,16}$`
+	reg := regexp.MustCompile(pattern)
+
+	return reg.MatchString(username)
+}
+
+// CheckEmailValidity -
+func CheckEmailValidity(email string) (matched bool) {
+	pattern := `^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$`
+	reg := regexp.MustCompile(pattern)
+
+	return reg.MatchString(email)
+}
+
+// CheckPhoneValidity -
+func CheckPhoneValidity(phone string) (matched bool) {
+	pattern := `^1[3456789]\d{9}$`
+	reg := regexp.MustCompile(pattern)
+
+	return reg.MatchString(phone)
+}
+
+// GenerateToken - token = md5(username+timestamp+tokenSalt)+timestamp[:]
+func GenerateToken(username string) (token string) {
+	ts := fmt.Sprintf("%x", time.Now().Unix())
+	tokenPrefix := MD5Byte([]byte(username + ts + "miuer"))
+
+	return tokenPrefix + ts[:]
+}
+
+// ExecLinuxShell -
+func ExecLinuxShell(shell string) (err error) {
+	cmd := exec.Command("/bin/bash", "-c", shell)
+
+	err = cmd.Run()
+
+	return err
 }
