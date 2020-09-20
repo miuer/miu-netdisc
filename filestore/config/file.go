@@ -1,6 +1,9 @@
 package config
 
 const (
-	TmpDataFileDir  = "/Users/duanyahong/tmp/data/"
+	// TmpDataFileDir -
+	TmpDataFileDir = "/Users/duanyahong/tmp/data/"
+
+	// TmpChunkFileDir -
 	TmpChunkFileDir = "/Users/duanyahong/tmp/chunk/"
 )
